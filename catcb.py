@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-copipe - Concatenate and copy file contents from a directory to clipboard.
+catcb - Concatenate and copy file contents from a directory to clipboard.
 
 This script reads files from a given directory (recursively if specified),
 filters them by extension (if provided), and copies the contents to the
@@ -8,7 +8,7 @@ clipboard. Each file's content is prefixed with its path (relative to the
 base directory), and files are separated by a blank line.
 
 Usage:
-    copipe.py [directory] [-r] [-e EXT [EXT ...]] [-v]
+    catcb.py [directory] [-r] [-e EXT [EXT ...]] [-v]
 
 Arguments:
     directory             Directory to scan (default: current directory)
