@@ -2,15 +2,17 @@
 """
 gitdiffcb - Copy the result of `git diff` to the clipboard.
 
-This script runs `git diff` in the current working directory and copies
-its output to the clipboard. If the directory is not a Git repository,
-an error message is shown. The pager is disabled regardless of git config.
+This script runs `git diff` (or `git diff --cached` if --staged is specified)
+in the current working directory and copies its output to the clipboard.
+If the directory is not a Git repository, an error message is shown.
+The pager is disabled regardless of git config.
 
 Usage:
-    gitdiffcb.py [-v]
+    gitdiffcb.py [--staged] [-v]
 
 Options:
-    -v, --verbose   Print the diff result to stdout.
+    --staged         Show only staged (cached) changes.
+    -v, --verbose    Print the diff result to stdout.
 """
 
 import os
@@ -43,18 +45,23 @@ def is_git_repository(path):
         return False
 
 
-def get_git_diff(path):
+def get_git_diff(path, staged=False):
     """
-    Run `git diff` with pager disabled and return the output.
+    Run `git diff` (or `git diff --cached`) with pager disabled and return output.
 
     Args:
-        path (str): The directory where the git command is run.
+        path (str): Directory where the git command is run.
+        staged (bool): Whether to get staged changes.
 
     Returns:
         str: The diff output as a string.
     """
+    cmd = ["git", "--no-pager", "diff"]
+    if staged:
+        cmd.append("--cached")
+
     result = subprocess.run(
-        ["git", "--no-pager", "diff"],
+        cmd,
         cwd=path,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
@@ -66,6 +73,11 @@ def get_git_diff(path):
 def main():
     parser = argparse.ArgumentParser(
         description="Copy `git diff` output to clipboard."
+    )
+    parser.add_argument(
+        "--staged",
+        action="store_true",
+        help="Show staged (cached) changes only"
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -80,14 +92,20 @@ def main():
         print("Error: Not a Git repository.", file=sys.stderr)
         sys.exit(1)
 
-    diff_output = get_git_diff(current_dir)
+    diff_output = get_git_diff(current_dir, staged=args.staged)
+
+    if not diff_output.strip():
+        print("No changes found.")
+        return
 
     pyperclip.copy(diff_output)
 
     if args.verbose:
         print(diff_output)
 
-    print("Copied `git diff` to clipboard.")
+    print("Copied `git diff{}` to clipboard.".format(
+        " --cached" if args.staged else ""
+    ))
 
 
 if __name__ == "__main__":
