@@ -15,10 +15,11 @@ Options:
     -v, --verbose    Print the diff result to stdout.
 """
 
+import argparse
 import os
 import subprocess
 import sys
-import argparse
+
 import pyperclip
 
 

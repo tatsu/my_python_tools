@@ -21,9 +21,10 @@ Options:
     -v, --verbose         Print file content output to stdout.
 """
 
-import os
 import argparse
 import fnmatch
+import os
+
 import pyperclip
 
 
