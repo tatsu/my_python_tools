@@ -27,9 +27,26 @@ import fnmatch
 import pyperclip
 
 
-def matches_any_pattern(filename, patterns):
-    """Check if filename matches any pattern in the list."""
-    return any(fnmatch.fnmatch(filename, pat) for pat in patterns)
+def matches_any_pattern(path, patterns):
+    """
+    Check if a path matches any glob pattern or directory exclusion.
+
+    Args:
+        path (str): The relative path to match.
+        patterns (list[str]): List of glob patterns or directory names.
+
+    Returns:
+        bool: True if any pattern matches the path.
+    """
+    for pattern in patterns:
+        # If the pattern is a directory name (no wildcard, no slash), treat as dir exclusion
+        if os.path.sep not in pattern and '*' not in pattern and '?' not in pattern:
+            if path.startswith(pattern.rstrip('/') + '/'):
+                return True
+        # Otherwise, treat as glob
+        if fnmatch.fnmatch(path, pattern):
+            return True
+    return False
 
 
 def collect_files(base_dir, recursive=False, includes=None, excludes=None):
@@ -39,8 +56,8 @@ def collect_files(base_dir, recursive=False, includes=None, excludes=None):
     Args:
         base_dir (str): Base directory to scan.
         recursive (bool): Search subdirectories if True.
-        includes (list[str]): Glob patterns to include.
-        excludes (list[str]): Glob patterns to exclude.
+        includes (list[str]): Glob patterns to include (match filename).
+        excludes (list[str]): Glob patterns to exclude (match relpath).
 
     Returns:
         list[str]: Matching file paths (relative to base_dir).
@@ -48,11 +65,15 @@ def collect_files(base_dir, recursive=False, includes=None, excludes=None):
     matched_files = []
     for root, _, files in os.walk(base_dir):
         for filename in files:
-            relpath = os.path.relpath(os.path.join(root, filename), base_dir)
+            full_path = os.path.join(root, filename)
+            relpath = os.path.relpath(full_path, base_dir)
 
+            # Include filter on filename
             if includes and not matches_any_pattern(filename, includes):
                 continue
-            if excludes and matches_any_pattern(filename, excludes):
+
+            # Exclude filter on relative path
+            if excludes and matches_any_pattern(relpath, excludes):
                 continue
 
             matched_files.append(relpath)
