@@ -103,7 +103,7 @@ def main():
     diff_output = get_git_diff(current_dir, staged=staged_flag)
 
     if not diff_output.strip():
-        print("No changes found.")
+        print("No changes found. Nothing copied.")
         return
 
     pyperclip.copy(diff_output)
@@ -118,3 +118,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
