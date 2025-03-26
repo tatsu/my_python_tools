@@ -2,17 +2,18 @@
 """
 gitdiffcb - Copy the result of `git diff` to the clipboard.
 
-This script runs `git diff` (or `git diff --cached` if --staged is specified)
-in the current working directory and copies its output to the clipboard.
-If the directory is not a Git repository, an error message is shown.
+This script runs `git diff` (or `git diff --cached` if --staged or --cached
+is specified) in the current working directory and copies its output to the
+clipboard. If the directory is not a Git repository, an error message is shown.
 The pager is disabled regardless of git config.
 
 Usage:
-    gitdiffcb.py [--staged] [-v]
+    gitdiffcb.py [--staged|--cached] [-v]
 
 Options:
-    --staged         Show only staged (cached) changes.
-    -v, --verbose    Print the diff result to stdout.
+    --staged          Show staged (cached) changes.
+    --cached          Alias for --staged.
+    -v, --verbose     Print the diff result to stdout.
 """
 
 import argparse
@@ -78,7 +79,12 @@ def main():
     parser.add_argument(
         "--staged",
         action="store_true",
-        help="Show staged (cached) changes only"
+        help="Show staged (cached) changes"
+    )
+    parser.add_argument(
+        "--cached",
+        action="store_true",
+        help="Alias for --staged"
     )
     parser.add_argument(
         "-v", "--verbose",
@@ -93,7 +99,8 @@ def main():
         print("Error: Not a Git repository.", file=sys.stderr)
         sys.exit(1)
 
-    diff_output = get_git_diff(current_dir, staged=args.staged)
+    staged_flag = args.staged or args.cached
+    diff_output = get_git_diff(current_dir, staged=staged_flag)
 
     if not diff_output.strip():
         print("No changes found.")
@@ -104,7 +111,8 @@ def main():
     if args.verbose:
         print(diff_output)
 
-    print(f"Copied `git diff{' --cached' if args.staged else ''}` to clipboard. "
+    option_label = "--staged" if args.staged else "--cached" if args.cached else ""
+    print(f"Copied `git diff {option_label}` to clipboard. "
           f"({len(diff_output)} characters)")
 
 
