@@ -104,9 +104,8 @@ def main():
     if args.verbose:
         print(diff_output)
 
-    print("Copied `git diff{}` to clipboard.".format(
-        " --cached" if args.staged else ""
-    ))
+    print(f"Copied `git diff{' --cached' if args.staged else ''}` to clipboard. "
+          f"({len(diff_output)} characters)")
 
 
 if __name__ == "__main__":

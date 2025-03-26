@@ -132,7 +132,7 @@ def main():
         print(output)
 
     pyperclip.copy(output)
-    print("Copied to clipboard.")
+    print(f"Copied to clipboard. ({len(output)} characters)")
 
 
 if __name__ == "__main__":
