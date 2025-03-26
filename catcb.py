@@ -132,7 +132,12 @@ def main():
         print(output)
 
     pyperclip.copy(output)
-    print(f"Copied to clipboard. ({len(output)} characters)")
+
+    print("Copied files:")
+    for f in sorted(files):
+        print(f)
+
+    print(f"\nTotal: {len(files)} file(s), {len(output)} characters copied to clipboard.")
 
 
 if __name__ == "__main__":
